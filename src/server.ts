@@ -24,7 +24,7 @@ async function checkDeliveryAvailability() {
         const response = await api.post('https://loja.electrolux.com.br/api/checkout/pub/orderForms/simulation?sc=1', {
             "items": [
                 {
-                    "id": String(productId),
+                    "id": productId,
                     "quantity": 1,
                     "seller": "1"
                 }
@@ -33,11 +33,11 @@ async function checkDeliveryAvailability() {
             "country": "BRA"
         })
 
-        const isAvailable = response.data?.items?.[0]?.availability !== 'cannotBeDelivered'
+        const isAvailable = response.data?.items?.[0]?.availability === 'available'
 
         showLog(isAvailable ? '🚚 Entrega Disponível' : `😢 Entrega Indisponível`)
 
-        if (previousIsAvailable !== isAvailable) {
+        if (previousIsAvailable === null || (previousIsAvailable !== isAvailable)) {
             if (isAvailable) {
                 availableCount++
 
