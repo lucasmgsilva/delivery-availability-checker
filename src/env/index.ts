@@ -1,10 +1,16 @@
 import 'dotenv/config'
 import { z } from 'zod'
 
+export enum Store {
+    ELECTROLUX = 'ELECTROLUX',
+    FASTSHOP = 'FASTSHOP'
+}
+
 const envSchema = z.object({
     BOT_TOKEN: z.string(),
     CHAT_ID: z.coerce.number(),
-    PRODUCT_ID: z.coerce.number(),
+    STORE_NAME: z.nativeEnum(Store),
+    PRODUCT_ID: z.string(),
     POSTAL_CODE: z.string().length(9),
     PRODUCT_URL: z.string().url().optional()
 })

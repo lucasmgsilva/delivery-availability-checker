@@ -1,14 +1,10 @@
-import axios from 'axios'
 import { Telegraf } from 'telegraf'
 import { env } from './env'
+import { checkIfDeliveryIsAvailable } from './utils/check-if-delivery-is-available'
 
 const bot = new Telegraf(env.BOT_TOKEN)
 const chatId = env.CHAT_ID
 
-const api = axios.create()
-
-const productId = env.PRODUCT_ID
-const postalCode = env.POSTAL_CODE
 const productUrl = env.PRODUCT_URL
 
 let previousIsAvailable: boolean | null = null
@@ -19,21 +15,9 @@ function showLog(message: string) {
     console.log(dateTime, message)
 }
 
-async function checkDeliveryAvailability() {
+export async function checkDeliveryAvailability() {
     try {
-        const response = await api.post('https://loja.electrolux.com.br/api/checkout/pub/orderForms/simulation?sc=1', {
-            "items": [
-                {
-                    "id": productId,
-                    "quantity": 1,
-                    "seller": "1"
-                }
-            ],
-            "postalCode": postalCode,
-            "country": "BRA"
-        })
-
-        const isAvailable = response.data?.items?.[0]?.availability === 'available'
+        const { isAvailable } = await checkIfDeliveryIsAvailable()
 
         showLog(isAvailable ? '🚚 Entrega Disponível' : `😢 Entrega Indisponível`)
 
@@ -51,10 +35,10 @@ async function checkDeliveryAvailability() {
         }
 
         previousIsAvailable = isAvailable
-
-        await new Promise(resolve => setTimeout(resolve, 10000))
     } catch (error) {
         console.error(error)
+    } finally {
+        await new Promise(resolve => setTimeout(resolve, 10000))
     }
 }
 
